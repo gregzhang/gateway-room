@@ -7,11 +7,13 @@ use Workerman\Protocols\Http\Request;
 use Workerman\Protocols\Http\Response;
 use Workerman\Worker;
 use Multiavatar;
+use Closure;
 
 use Exception;
 
 class HttpStaticalWorker
 {
+    protected string $web_root;
 
     protected function display($file)
     {
@@ -25,40 +27,44 @@ class HttpStaticalWorker
         return ob_get_clean();
     }
 
-    static function start(): Worker
+    static function start(array $options = null): Worker
     {
-        return (new self)->work();
+        return (new self)->work($options);
     }
 
-    protected function work(): Worker
+    protected function getWebRoot(): string
+    {
+        return __DIR__ . DIRECTORY_SEPARATOR . '..'
+            . DIRECTORY_SEPARATOR . 'Storage' . DIRECTORY_SEPARATOR . 'room';
+    }
+
+    protected function work(array $options = null): Worker
     {
         // WebServer
-        $web = new Worker("http://0.0.0.0:55151");
-        // WebServer进程数量
-        $web->count = 2;
+        $options['socket_name'] ??= "http://0.0.0.0:55151";
+        $options['count'] ??= 2;
+        $options['name'] ??= 'RoomHttpStatic';
+        $options['web_root'] ??= null;
+        $options['message_handler'] ??= null;
 
-        $web->name = 'RoomHttpStatic';
+        $web = new Worker($options['socket_name']);
+        $web->count = $options['count'];
+        $web->name = $options['name'];
+        $this->web_root = $options['web_root'] ?? $this->getWebRoot();
+        $web->onMessage = $options['message_handler'] ?? $this->getDefaultHandler();
+        return $web;
+    }
 
-        if (function_exists('storage_path')) {
-            define('WEBROOT', storage_path('room'));
-        } else {
-            define('WEBROOT', __DIR__ . DIRECTORY_SEPARATOR . '..'
-                . DIRECTORY_SEPARATOR . 'Storage' . DIRECTORY_SEPARATOR . 'room');
-        }
-
-
-        $web->onMessage = function (TcpConnection $connection, Request $request) {
-
+    function getDefaultHandler(): Closure
+    {
+        return function (TcpConnection $connection, Request $request) {
             $_GET = $request->get();
             $path = $request->path();
-
             if ($path === '/') {
-//                $connection->send($this->display(WEBROOT . '/index.php'));
-                $file = WEBROOT . '/index.html';
+                $file = $this->web_root . '/index.html';
                 $connection->send((new Response())->withFile($file));
                 return;
             }
-
             if ($path === '/avatar') {
                 $avatar = new Multiavatar();
                 $avatarId = $_GET['name'];
@@ -67,13 +73,13 @@ class HttpStaticalWorker
                 return;
             }
 
-            $file = realpath(WEBROOT . $path);
+            $file = realpath($this->web_root . $path);
             if (false === $file) {
                 $connection->send(new Response(404, [], '<h3>404 Not Found</h3>'));
                 return;
             }
             // Security check! Very important!!!
-            if (strpos($file, WEBROOT) !== 0) {
+            if (strpos($file, $this->web_root) !== 0) {
                 $connection->send(new Response(400));
                 return;
             }
@@ -81,10 +87,8 @@ class HttpStaticalWorker
                 $connection->send($this->display($file));
                 return;
             }
-
             $if_modified_since = $request->header('if-modified-since');
             if (!empty($if_modified_since)) {
-                // Check 304.
                 $info = stat($file);
                 $modified_time = $info ? date('D, d M Y H:i:s', $info['mtime']) . ' ' . date_default_timezone_get() : '';
                 if ($modified_time === $if_modified_since) {
@@ -92,10 +96,8 @@ class HttpStaticalWorker
                     return;
                 }
             }
+
             $connection->send((new Response())->withFile($file));
         };
-
-        return $web;
     }
-
 }

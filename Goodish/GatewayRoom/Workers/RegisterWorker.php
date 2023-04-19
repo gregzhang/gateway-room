@@ -8,9 +8,11 @@ use Workerman\Worker;
 
 class RegisterWorker
 {
-    static function start()
+    static function start(array $options = null)
     {
-        $worker =  new Register('text://0.0.0.0:1236');
-        $worker->name = 'RoomRegister';
+        $options['socket_name'] ??= 'text://0.0.0.0:1236';
+        $options['name'] ??= 'RoomRegister';
+        $worker =  new Register($options['socket_name']);
+        $worker->name = $options['name'];
     }
 }

@@ -9,19 +9,18 @@ use Workerman\Worker;
 
 class BusinessWorker
 {
-    static function start(): Worker
+    static function start(array $options = null): Worker
     {
-        // businessWorker 进程
+        $options['name'] ??= 'RoomBusinessWorker';
+        $options['count'] ??= 4;
+        $options['handler'] ??= BusinessEvents::class;
+        $options['register_address'] ??= '127.0.0.1:1236';
+
         $worker = new WorkerManBusinessWorker();
-        // worker名称
-        $worker->name = 'RoomBusinessWorker';
-        // businessWorker进程数量
-        $worker->count = 4;
-
-        $worker->eventHandler = BusinessEvents::class;
-        // 服务注册地址
-        $worker->registerAddress = '127.0.0.1:1236';
-
+        $worker->name = $options['name'];
+        $worker->count = $options['count'];
+        $worker->eventHandler = $options['handler'];
+        $worker->registerAddress = $options['register_address'];
         return $worker;
     }
 
