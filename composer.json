@@ -1,0 +1,24 @@
+{
+    "name": "gregzhang/gateway-room",
+    "description": "gateway-room",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Goodish\\GatewayRoom\\": "Goodish/GatewayRoom"
+        },
+        "files": [
+            "Goodish/GatewayRoom/helpers.php"
+        ]
+    },
+    "authors": [
+        {
+            "name": "gregzhang"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "revolt/event-loop": "^1.0",
+        "workerman/gateway-worker": "^3.0",
+        "multiavatar/multiavatar-php": "^1.0"
+    }
+}
