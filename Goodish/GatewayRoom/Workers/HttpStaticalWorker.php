@@ -1,4 +1,5 @@
 <?php
+
 namespace Goodish\GatewayRoom\Workers;
 
 use Workerman\Connection\TcpConnection;
@@ -38,7 +39,13 @@ class HttpStaticalWorker
 
         $web->name = 'RoomHttpStatic';
 
-        define('WEBROOT', storage_path('room'));
+        if (function_exists('storage_path')) {
+            define('WEBROOT', storage_path('room'));
+        } else {
+            define('WEBROOT', __DIR__ . DIRECTORY_SEPARATOR . '..'
+                . DIRECTORY_SEPARATOR . 'Storage' . DIRECTORY_SEPARATOR . 'room');
+        }
+
 
         $web->onMessage = function (TcpConnection $connection, Request $request) {
 
@@ -47,7 +54,7 @@ class HttpStaticalWorker
 
             if ($path === '/') {
 //                $connection->send($this->display(WEBROOT . '/index.php'));
-                $file = WEBROOT. '/index.html';
+                $file = WEBROOT . '/index.html';
                 $connection->send((new Response())->withFile($file));
                 return;
             }
