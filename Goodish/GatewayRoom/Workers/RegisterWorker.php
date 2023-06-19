@@ -4,7 +4,6 @@
 namespace Goodish\GatewayRoom\Workers;
 
 use GatewayWorker\Register;
-use Workerman\Worker;
 
 class RegisterWorker
 {

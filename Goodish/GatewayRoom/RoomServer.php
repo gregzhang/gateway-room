@@ -1,7 +1,6 @@
 <?php
 namespace Goodish\GatewayRoom;
 
-use Goodish\GatewayRoom\Events\BusinessEvents;
 use Goodish\GatewayRoom\Workers\BusinessWorker;
 use Goodish\GatewayRoom\Workers\GatewayWorker;
 use Goodish\GatewayRoom\Workers\HttpStaticalWorker;
@@ -56,7 +55,7 @@ class RoomServer
 
     function checkEnvironment(&$message = ''): bool
     {
-        if (str_starts_with(strtolower(PHP_OS), 'win')) {
+        if (strpos(strtolower(PHP_OS), 'win')) {
             $message = 'error os';
             return false;
         }

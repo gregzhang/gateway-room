@@ -15,7 +15,7 @@ class BusinessEvents
      * @return bool
      * @throws Exception
      */
-    static function onMessage(int|string $client_id, mixed $message): bool
+    static function onMessage( $client_id, $message): bool
     {
         // debug
         echo "client:{$_SERVER['REMOTE_ADDR']}:{$_SERVER['REMOTE_PORT']} gateway:{$_SERVER['GATEWAY_ADDR']}:{$_SERVER['GATEWAY_PORT']}  client_id:$client_id session:" . json_encode($_SESSION) . " onMessage:" . $message . "\n";
@@ -102,7 +102,7 @@ class BusinessEvents
      * 当客户端断开连接时
      * @param int| string $client_id
      */
-    static function onClose(int|string $client_id)
+    static function onClose($client_id)
     {
 
         // debug
@@ -136,7 +136,7 @@ class BusinessEvents
      * @param int|string $client_id
      * @param mixed $message
      */
-    static function onWebSocketConnect(int|string $client_id, mixed $message)
+    static function onWebSocketConnect($client_id, $message)
     {
 //        var_export($data);
 //        if (!isset($data['get']['token'])) {
