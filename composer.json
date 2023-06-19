@@ -15,7 +15,6 @@
     "minimum-stability": "dev",
     "require": {
         "php": ">=7.4",
-        "revolt/event-loop": "^1.0",
         "workerman/gateway-worker": "^3.0",
         "multiavatar/multiavatar-php": "^1.0",
         "ext-json": "*"
